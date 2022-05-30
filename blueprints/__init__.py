@@ -1,3 +1,3 @@
-from . import addpolls
+from . import addpolls, raiting
 
-bps = [addpolls.bp]
+bps = [addpolls.bp, raiting.bp]
