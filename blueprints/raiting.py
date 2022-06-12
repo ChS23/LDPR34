@@ -1,18 +1,21 @@
 import random
 from typing import List
-from vkbottle import Bot, GroupEventType, GroupTypes, Keyboard, KeyboardButtonColor, LoopWrapper, Text, VKAPIError
+from vkbottle import Bot, GroupEventType, GroupTypes, LoopWrapper, User, VKAPIError
 from vkbottle.bot import Blueprint, Message
 from core.config import widget, user
 from datetime import datetime
 from core.DataBaseController import DataBaseController
+from core.PermisionRule import PermisionRule
 PREFIX="."
-
 
 bp = Blueprint()
 
 lw = LoopWrapper()
 
 db = DataBaseController()
+
+from core.config1 import user
+user = User(user)
 
 
 # Добавляет баллы пользователю, за лайк
@@ -45,31 +48,53 @@ async def parser_id(members:List[str]) -> List[int]:
     # https://vk.com/id457045924
     result=[]
     for member in members:
-        member = member.replace("https://vk.com/", "")
-        member = (member.split('id')[1]).split('|')[0]
-        if member.isdigit():
-            result.append(int(member))
-        else:
-            result.append(int (bp.api.users.users_get(user_ids=member).execute().response.items.id))
-    return result   
+        if member.find("https://vk.com/") != -1: member = member.replace("https://vk.com/", "")
+        if member.find("[id") != -1: member = (member.split('id')[1]).split('|')[0]
+        if member.isdigit(): result.append(int(member))
+        else: result.append(int((await bp.api.users.get(user_ids=member))[0].id))
+    return result
         
 
-@bp.on.message(text=(f"{PREFIX}мероприятие <members>"))
+@bp.on.message(PermisionRule(), text=f"{PREFIX}мероприятие <members>")
 async def add_score_event(message:Message):
-    members = message.text.split(" ")[1:]
-    members = await parser_id(members)
-    await db.scores_update_event(members)
+    try:
+        members = message.text.split(" ")[1:]
+        members = await parser_id(members)
+        await db.scores_update_event(members)
+        await message.answer("Баллы добавлены")
+    except:
+        await message.answer("Ошибка при добавлении баллов")
 
     # .мероприятие @id23423542 @dasfgrges https://vk.com/id2344523
     # @dfsdfge -> [id23423542|dasfgrges]
 
 
-@bp.on.message(text=(f"{PREFIX}баллы <score> <members>"))
+@bp.on.message(PermisionRule(), text=f"{PREFIX}баллы <score> <members>")
 async def add_score_members(message:Message):
-    members = message.text.split(" ")[2:]
-    members = await parser_id(members)
+    try:
+        members = message.text.split(" ")[2:]
+        members = await parser_id(members)
+        score = int(message.text.split(" ")[1])
+        await db.scores_update_members(members, score)
+        await message.answer("Баллы добавлены")
+    except Exception as e:
+        await message.answer("Ошибка при добавлении баллов")
+        print(e)
+
+
+@bp.on.message(PermisionRule(), text=(f"{PREFIX}снять <score> <member>"))
+async def remove_score_member(message:Message):
+    member = message.text.split(" ")[2]
+    member = await parser_id(member)
     score = int(message.text.split(" ")[1])
-    await db.scores_update_members(members, score)
+    await db.scores_update(member, -score)
+    await message.answer(f"У пользователя @id{member} снято {score} баллов")
+
+
+# Обновить виджет без ожидания обновления
+@bp.on.message(PermisionRule(), text=f"{PREFIX}обновитьвиджет")
+async def update_widget(message:Message):
+    await rating_update()
 
 
 
@@ -102,7 +127,9 @@ async def add_score_members(message:Message):
 @lw.interval(seconds=15)
 async def rating_update():
     widgetRating = {
-        "title": "Рейтинг на "+datetime.now().strftime("%H:%M"),
+        "title": "Рейтинг на "+datetime.now().strftime("%H:%M %d.%m.%Y"),
+        "more": "v." + " " + (await db.get_version())[:(await db.get_version()).find("-")],
+        "more_url": "https://vk.com/chs23",
         "head": [
             {
                 "text": "Участник",
@@ -128,7 +155,7 @@ async def rating_update():
         "body": [
             [
                 {
-                    "text": (await bp.api.users.get(await db.top_member_count_id(1)))[0].first_name,
+                    "text": (await bp.api.users.get(await db.top_member_count_id(1)))[0].first_name + " " + (await bp.api.users.get(await db.top_member_count_id(1)))[0].last_name,
                     "icon_id": "id"+str(await db.top_member_count_id(1)),
                 },
                 {
@@ -146,7 +173,7 @@ async def rating_update():
             ],
             [
                 {
-                    "text": (await bp.api.users.get(await db.top_member_count_id(2)))[0].first_name,
+                    "text": (await bp.api.users.get(await db.top_member_count_id(2)))[0].first_name + " " + (await bp.api.users.get(await db.top_member_count_id(2)))[0].last_name,
                     "icon_id": "id"+str(await db.top_member_count_id(2)),
                 },
                 {
@@ -164,7 +191,7 @@ async def rating_update():
             ],
             [
                 {
-                    "text": (await bp.api.users.get(await db.top_member_count_id(3)))[0].first_name,
+                    "text": (await bp.api.users.get(await db.top_member_count_id(3)))[0].first_name + " " + (await bp.api.users.get(await db.top_member_count_id(3)))[0].last_name,
                     "icon_id": "id"+str(await db.top_member_count_id(3)),
                 },
                 {
@@ -182,7 +209,7 @@ async def rating_update():
             ],
             [
                 {
-                    "text": (await bp.api.users.get(await db.top_member_count_id(4)))[0].first_name,
+                    "text": (await bp.api.users.get(await db.top_member_count_id(4)))[0].first_name + " " + (await bp.api.users.get(await db.top_member_count_id(4)))[0].last_name,
                     "icon_id": "id"+str(await db.top_member_count_id(4)),
                 },
                 {
@@ -200,7 +227,7 @@ async def rating_update():
             ],
             [
                 {
-                    "text": (await bp.api.users.get(await db.top_member_count_id(5)))[0].first_name,
+                    "text": (await bp.api.users.get(await db.top_member_count_id(5)))[0].first_name + " " + (await bp.api.users.get(await db.top_member_count_id(5)))[0].last_name,
                     "icon_id": "id"+str(await db.top_member_count_id(5)),
                 },
                 {
@@ -227,14 +254,21 @@ async def rating_update():
 # Сравнивает время опроса с текущим временем
 # Когда осталось 12 часов до начала мероприятия, отправляет всем пользователям напоминание
 # lw.interval(60*29)
-@lw.interval(seconds=10)
+@lw.interval(seconds=30)
 async def event_time_reminder():
     if await db.check_poll_time(datetime.now().timestamp()):
         events = await db.get_events_by_time(datetime.now().timestamp())
         for event in events:
-            print_time = datetime.fromtimestamp(event["time"]).strftime('%H:%M %d.%m')
-            for member in event['members']:
-                await bp.api.messages.send(peer_id=member, message=f"Напоминаем, что начало мероприятия в {print_time}", random_id=random.randint(0, 2**64))
+            event_time = datetime.fromtimestamp(event["time"]).strftime('%H:%M %d.%m.%Y')
+            members = event['members']
+            for member in members:
+                try:
+                    await bp.api.messages.send(peer_id=member, message=f"Напоминаем, что начало мероприятия в {event_time}", random_id=random.randint(0, 2**64))
+                except:
+                    try:
+                        await user.api.messages.send(user_id=member, message=f"Напоминаем, что начало мероприятия в {event_time}", random_id=random.randint(0, 2**64))
+                    except:
+                        pass
             await db.delete_poll(event['_id'])
 
 
@@ -257,40 +291,7 @@ async def event_time_reminder():
 #             print('Опрос удалён')
 
 
-# При нажатии на кнопку с надписью "Начать"
-# Выводит кнопку с текстом "Разрешить отправку сообщений"
-@bp.on.chat_message(text=['Начать'])
-async def start_poll(message: Message):
-    keyboard=(
-            Keyboard(one_time=False)
-            .add(Text('Разрешить отправку сообщений'), {'request_contact': 'allow'}, color=KeyboardButtonColor.POSITIVE)
-            )
-    await message.answer(
-        message="Нажмите на кнопку, чтобы разрешить отправку сообщений",
-        keyboard=keyboard.get_json()
-    )
-
-
-# Подписаться на рассылку сообщений 
-@bp.on.private_message(payload={'request_contact':'allow'})
-async def allow_send_message(message: Message):
-    keyboard=(
-        Keyboard(one_time=False)
-        .add(Text('Подписаться на рассылку сообщений'), {'request_contact': 'send'}, color=KeyboardButtonColor.POSITIVE)
-        )
-    await message.answer(
-        message="Вы успешно дали разрешение на отправку сообщений",
-        keyboard=keyboard.get_json()
-    )
-
-
-@bp.on.private_message(payload={'request_contact':'send'})
-async def send_message(message: Message):
-    keyboard=(
-        Keyboard(one_time=False)
-        .add(Text('Подписаться на рассылку сообщений'), {'request_contact': 'send'}, color=KeyboardButtonColor.POSITIVE)
-        )
-    await message.answer(
-        message="Рассылка сообщений пока недоступна",
-        keyboard=keyboard.get_json()
-    )
+@bp.on.message(text='test <member>')
+async def test(message:Message):
+    member = message.text.split(' ')[1]
+    print(message.text)

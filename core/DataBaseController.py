@@ -1,10 +1,10 @@
 import datetime
-
-from requests import delete
 from core.config import mongo
 from typing import List
 
 import motor.motor_asyncio
+
+from core.functions import getTimeUnix
 client = motor.motor_asyncio.AsyncIOMotorClient(mongo)
 
 
@@ -22,7 +22,7 @@ class DataBaseController:
 
     async def check_user(self, id:int) -> bool:
         '''Проверяет на существование пользователя в базе данных'''
-        return await self._members.find_one({"_id": id}) is not None
+        return await self._members.find_one({"_id": id}) is None
 
     
     async def add_user(self, id:int):
@@ -32,7 +32,7 @@ class DataBaseController:
 
     async def scores_update(self, id:int, score:int):
         '''Обновляет количество баллов пользователя'''
-        if self.check_user(id): await self.add_user(id)
+        if (await self.check_user(id)): await self.add_user(id)
         await self._members.update_one({"_id": id}, {"$inc": {"scores": score}})
 
 
@@ -79,26 +79,27 @@ class DataBaseController:
         await self.scores_update(id, -self._SCORE_BY_COMMENT)
 
 
-    async def getTimeUnix(time:str) -> int:
-        '''Конвертирует время в формат unix'''
-        return int(datetime.datetime.strptime(time, "%d.%m.%Y %H:%M").timestamp())
-
-
     async def add_poll(self, poll_id:int, answer_id:int, time:str):
         '''Добавляет опрос в базу данных'''
-        time = await self.getTimeUnix(time).result()
-        await self._polls.insert_one({'_id': poll_id, 'answer': answer_id, 'members': [], 'time': time})
+        time = getTimeUnix(time)
+        try:
+            await self._polls.insert_one({"_id": poll_id, "answer": answer_id, "members": [], "time": time})
+        except Exception as e:
+            print(e)
 
 
     async def edit_time_poll(self, poll_id:int, time:str):
         '''Изменяет время опроса'''
-        time = await self.getTimeUnix(time).result()
+        time = getTimeUnix(time)
         await self._polls.update_one({"_id": poll_id}, {"$set": {"time": time}})
 
 
     async def add_members_in_poll(self, poll_id:int, member:int):
         '''Добавляет пользователя в опрос'''
-        await self._polls.update_one({"_id": poll_id}, {"$push": {"members": member}})
+        try:
+            await self._polls.update_one({"_id": poll_id}, {"$addToSet": {"members": member}})
+        except Exception as e:
+            print(e)
 
 
     async def top_members(self, count:int) -> List[int]:
@@ -149,9 +150,19 @@ class DataBaseController:
     async def delete_poll(self, id:str):
         '''Удаляет опрос'''
         await self._polls.delete_one({"_id": id})
+        print("Опрос удален")
 
 
     async def get_events_by_time(self, time:int) -> List[int]:
         '''Возвращает список вопросов у которых время опроса меньше чем time'''
         return await self._polls.find({"time": {"$lt": time}}).to_list(None)
 
+
+    async def get_version(self) -> str:
+        '''Возвращает версию базы данных'''
+        return (await self._info.find_one({"_id": 0}))["version"]
+
+
+    async def set_version(self, version:str):
+        '''Устанавливает версию бота'''
+        await self._info.update_one({"_id": 0}, {"$set": {"version": version}})
