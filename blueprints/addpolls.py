@@ -25,7 +25,6 @@ async def check_newpost(event:GroupTypes.WallPostNew):
             time:str = event.object.attachments[0].poll.question
             try:
                 await db.add_poll(poll_id, answer_id, time)
-                # КАК КАК КАК КАК КАК 
                 print('Опрос добавлен')
             except Exception as e:
                 print('Приозошла ошибка при добавлении опроса в базу данных')
@@ -51,7 +50,7 @@ async def poll_time(message:Message):
 # Если ответа нет, то пропускает пост
 @bp.on.raw_event(GroupEventType.POLL_VOTE_NEW, dataclass=GroupTypes.PollVoteNew)
 async def check_new_answer(event:GroupTypes.PollVoteNew):
-    poll_id = str(event.object.poll_id)[0:9]
+    poll_id = int(str(event.object.poll_id)[0:9])
     try:
         await db.add_members_in_poll(poll_id, event.object.user_id)
         print('Ответ добавлен')

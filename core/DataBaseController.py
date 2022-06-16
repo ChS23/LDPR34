@@ -1,10 +1,9 @@
-import datetime
 from core.config import mongo
 from typing import List
 
 import motor.motor_asyncio
 
-from core.functions import getTimeUnix
+from core.functions import get_unix_time
 client = motor.motor_asyncio.AsyncIOMotorClient(mongo)
 
 
@@ -12,6 +11,7 @@ class DataBaseController:
 
     _SCORE_BY_LIKE = 1
     _SCORE_BY_COMMENT = 1
+    _TIME_NOTIFY = 60*60*12
 
     def __init__(self):
         self._db = client.LDPR34
@@ -81,7 +81,7 @@ class DataBaseController:
 
     async def add_poll(self, poll_id:int, answer_id:int, time:str):
         '''Добавляет опрос в базу данных'''
-        time = getTimeUnix(time)
+        time = get_unix_time(time)
         try:
             await self._polls.insert_one({"_id": poll_id, "answer": answer_id, "members": [], "time": time})
         except Exception as e:
@@ -90,7 +90,7 @@ class DataBaseController:
 
     async def edit_time_poll(self, poll_id:int, time:str):
         '''Изменяет время опроса'''
-        time = getTimeUnix(time)
+        time = get_unix_time(time)
         await self._polls.update_one({"_id": poll_id}, {"$set": {"time": time}})
 
 
@@ -134,6 +134,7 @@ class DataBaseController:
 
     async def check_poll_time(self, time:int) -> bool:
         '''Проверяет на время опроса все опросы'''
+        time = time + self._TIME_NOTIFY
         return await self._polls.find_one({"time": {"$lt": time}}) is not None
 
 
@@ -155,6 +156,7 @@ class DataBaseController:
 
     async def get_events_by_time(self, time:int) -> List[int]:
         '''Возвращает список вопросов у которых время опроса меньше чем time'''
+        time = time + self._TIME_NOTIFY
         return await self._polls.find({"time": {"$lt": time}}).to_list(None)
 
 

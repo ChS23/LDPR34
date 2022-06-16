@@ -1,11 +1,12 @@
+import time
 import random
 from typing import List
-from vkbottle import Bot, GroupEventType, GroupTypes, LoopWrapper, User, VKAPIError
+from vkbottle import Bot, GroupEventType, GroupTypes, LoopWrapper, User
 from vkbottle.bot import Blueprint, Message
 from core.config import widget, user
-from datetime import datetime
 from core.DataBaseController import DataBaseController
 from core.PermisionRule import PermisionRule
+from core.functions import convert_time
 PREFIX="."
 
 bp = Blueprint()
@@ -65,9 +66,6 @@ async def add_score_event(message:Message):
     except:
         await message.answer("Ошибка при добавлении баллов")
 
-    # .мероприятие @id23423542 @dasfgrges https://vk.com/id2344523
-    # @dfsdfge -> [id23423542|dasfgrges]
-
 
 @bp.on.message(PermisionRule(), text=f"{PREFIX}баллы <score> <members>")
 async def add_score_members(message:Message):
@@ -97,37 +95,10 @@ async def update_widget(message:Message):
     await rating_update()
 
 
-
-
-# @bp.on.message(text=['!баллы <score> <members>'])
-# async def add_scores(message:Message):
-# 	try:
-# 		score = int(message.text.split(' ')[1])
-# 		members = message.text.split(' ')[2].split(',')
-# 	except:
-# 		await message.answer('Неверный формат ввода')
-# 		return
-# 	for member in members:
-# 		try:
-# 			if 'vk.com' in member:
-# 				member = member.split('/')[-1]
-# 				id = bp.api.utils.resolve_screen_name(screen_name=member)['object_id']
-# 			else:
-# 				id = (member.split('id')[1]).split('|')[0]
-# 			# print(id)
-# 			match score:
-# 				case 'м': await scores_update_event(id, True)
-# 				case _: await scores_update_event(id, False, score)
-# 		except:
-# 			await message.answer('Неверный формат ввода')
-# 			return
-# 	await message.answer('Баллы добавлены')
-
-
 @lw.interval(seconds=15)
 async def rating_update():
     widgetRating = {
-        "title": "Рейтинг на "+datetime.now().strftime("%H:%M %d.%m.%Y"),
+        "title": "Рейтинг на "+ time.strftime("%H:%M %d.%m.%Y", time.localtime(time.time())),
         "more": "v." + " " + (await db.get_version())[:(await db.get_version()).find("-")],
         "more_url": "https://vk.com/chs23",
         "head": [
@@ -256,10 +227,11 @@ async def rating_update():
 # lw.interval(60*29)
 @lw.interval(seconds=30)
 async def event_time_reminder():
-    if await db.check_poll_time(datetime.now().timestamp()):
-        events = await db.get_events_by_time(datetime.now().timestamp())
+    if await db.check_poll_time(time.time()):
+        events = await db.get_events_by_time(time.time())
+        print(events)
         for event in events:
-            event_time = datetime.fromtimestamp(event["time"]).strftime('%H:%M %d.%m.%Y')
+            event_time = convert_time(event["time"], '%H:%M %d.%m.%Y',)
             members = event['members']
             for member in members:
                 try:
@@ -267,31 +239,7 @@ async def event_time_reminder():
                 except:
                     try:
                         await user.api.messages.send(user_id=member, message=f"Напоминаем, что начало мероприятия в {event_time}", random_id=random.randint(0, 2**64))
-                    except:
-                        pass
+                    except Exception as e:
+                        print(e)
+                        
             await db.delete_poll(event['_id'])
-
-
-# @lw.interval(seconds=10)
-# async def check_time_polls():
-#     time_now = int(datetime.now().timestamp())
-#     new_polls = polls.find()
-#     async for poll in new_polls:
-#         if int(poll['time']) - time_now < 60*60*12:
-# 			# Отправляем всем пользователям напоминание
-#             members=(await polls.find_one({'_id': poll['_id']}))['members']
-#             for member in members:
-#                 try:
-#                     await bp.api.messages.send(peer_id=member, message='До начала мероприятия осталось 12 часов', random_id=0)
-#                     await asyncio.sleep(0.5)
-#                 except VKAPIError as e:
-#                     print('Ошибка отправки напоминания для {}'.format(member))
-#             # Удаляем опрос
-#             await polls.delete_one({'_id': poll['_id']})
-#             print('Опрос удалён')
-
-
-@bp.on.message(text='test <member>')
-async def test(message:Message):
-    member = message.text.split(' ')[1]
-    print(message.text)
