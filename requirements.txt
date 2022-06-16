@@ -16,7 +16,7 @@ jmespath==1.0.0
 motor==3.0.0
 multidict==6.0.2
 omegaconf==2.2.2
-pip====21.2.4
+pip===21.2.4
 pydantic==1.9.0
 pymongo==4.1.1
 pymongo-auth-aws==1.0.2
