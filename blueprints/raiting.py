@@ -229,8 +229,8 @@ async def rating_update():
 # lw.interval(60*29)
 @lw.interval(seconds=30)
 async def event_time_reminder():
-    if await db.check_poll_time(datetime.datetime.now(tz)):
-        events = await db.get_events_by_time(datetime.datetime.now(tz))
+    if await db.check_poll_time(int(datetime.datetime.now(tz).timestamp())):
+        events = await db.get_events_by_time(int(datetime.datetime.now(tz).timestamp()))
         print(events)
         for event in events:
             event_time = convert_time(event["time"], '%d.%m.%Y %H:%M',)
