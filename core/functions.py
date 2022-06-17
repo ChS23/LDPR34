@@ -3,7 +3,7 @@ from pytz import timezone
 
 
 def get_unix_time(time_string: str) -> int:
-    return int(datetime.datetime.strptime(time_string, "%d.%m.%Y %H:%M").timestamp())
+    return int(datetime.datetime.astimezone(timezone("Europe/Moscow")).strptime(time_string, "%d.%m.%Y %H:%M").timestamp())
 
 
 def convert_time(seconds: int, string_format: str) -> str:
