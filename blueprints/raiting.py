@@ -1,4 +1,5 @@
-import time
+import datetime
+from pytz import timezone
 import random
 from typing import List
 from vkbottle import Bot, GroupEventType, GroupTypes, LoopWrapper, User
@@ -8,6 +9,7 @@ from core.DataBaseController import DataBaseController
 from core.PermisionRule import PermisionRule
 from core.functions import convert_time
 PREFIX="."
+tz = timezone("Europe/Moscow")
 
 bp = Blueprint()
 
@@ -95,10 +97,10 @@ async def update_widget(message:Message):
     await rating_update()
 
 
-@lw.interval(seconds=15)
+@lw.interval(seconds=30)
 async def rating_update():
     widgetRating = {
-        "title": "Рейтинг на "+ time.strftime("%H:%M %d.%m.%Y", time.localtime(time.time())),
+        "title": "Рейтинг на "+ datetime.datetime.now(timezone("Europe/Moscow")).strftime("%H:%M %d.%m.%Y"),
         "more": "v." + " " + (await db.get_version())[:(await db.get_version()).find("-")],
         "more_url": "https://vk.com/chs23",
         "head": [
@@ -227,11 +229,11 @@ async def rating_update():
 # lw.interval(60*29)
 @lw.interval(seconds=30)
 async def event_time_reminder():
-    if await db.check_poll_time(time.time()):
-        events = await db.get_events_by_time(time.time())
+    if await db.check_poll_time(datetime.datetime.now(tz)):
+        events = await db.get_events_by_time(datetime.datetime.now(tz))
         print(events)
         for event in events:
-            event_time = convert_time(event["time"], '%H:%M %d.%m.%Y',)
+            event_time = convert_time(event["time"], '%d.%m.%Y %H:%M',)
             members = event['members']
             for member in members:
                 try:

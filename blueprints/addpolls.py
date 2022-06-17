@@ -5,8 +5,6 @@ from time import sleep
 from vkbottle.bot import Blueprint, Message
 from vkbottle import GroupEventType, GroupTypes, Keyboard, KeyboardButtonColor, Text, User
 from core.config import user
-import datetime
-from blueprints.raiting import lw
 from core.DataBaseController import DataBaseController
 
 
