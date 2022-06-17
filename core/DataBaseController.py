@@ -11,7 +11,7 @@ class DataBaseController:
 
     _SCORE_BY_LIKE = 1
     _SCORE_BY_COMMENT = 1
-    _TIME_NOTIFY = 60*60*12
+    _TIME_NOTIFY = 60*60*15
 
     def __init__(self):
         self._db = client.LDPR34

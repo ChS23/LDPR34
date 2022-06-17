@@ -7,4 +7,4 @@ def get_unix_time(time_string: str) -> int:
 
 
 def convert_time(seconds: int, string_format: str) -> str:
-    return datetime.datetime.fromtimestamp(seconds, timezone("Europe/Moscow")).strftime(string_format)  
+    return datetime.datetime.fromtimestamp(seconds-10800, timezone("Europe/Moscow")).strftime(string_format)  

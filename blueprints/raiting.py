@@ -233,7 +233,7 @@ async def event_time_reminder():
         events = await db.get_events_by_time(int(datetime.datetime.now(tz).timestamp()))
         print(events)
         for event in events:
-            event_time = convert_time(event["time"], '%d.%m.%Y %H:%M',)
+            event_time = convert_time(event["time"], '%d.%m.%Y %H:%M')
             members = event['members']
             for member in members:
                 try:
