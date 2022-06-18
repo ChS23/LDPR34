@@ -1,0 +1,5 @@
+token="a470448f3034f61ed48bbf8163601f1207866868f8e40aec6f6735efae02c51da7b3d3fe564b68aa205ed"
+widget="ceefe3bb90b9509c6cebc8c0f6c996a00e52370e60a19bba9bf4829023d3b75c5cedeac0b29cc69dec4e4"
+
+user="ddf1204feb3063ef9072e78030708b5ee0cfbd59ceba6881eb540e61f2e06e60a9b27b7be21e97c3a2346"
+mongo="mongodb+srv://ADMIN:7xk3fyGHvc70aEj1@cluster0.gggor.mongodb.net/?retryWrites=true&w=majority"
