@@ -99,6 +99,7 @@ async def update_widget(message:Message):
 
 @lw.interval(seconds=30)
 async def rating_update():
+    
     widgetRating = {
         "title": "Рейтинг на "+ datetime.datetime.now(timezone("Europe/Moscow")).strftime("%H:%M %d.%m.%Y"),
         "more": "v." + " " + (await db.get_version())[:(await db.get_version()).find("-")],
