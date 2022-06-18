@@ -42,6 +42,13 @@ class DataBaseController:
         for member in events_members:
             await self.scores_update(member, score)
             await self._members.update_one({"_id": member}, {"$inc": {"event": 1}})
+
+
+    async def scores_update_event_count(self, event_count:int, event_members:List[int]):
+        '''Обновляет количество баллов пользователя за мероприятие на определённое количество'''
+        for member in event_members:
+            await self.scores_update(member, event_count)
+            await self._members.update_one({"_id": member}, {"$inc": {"event": 1}})
         
 
     async def scores_update_members(self, members:List[int], score):
@@ -168,3 +175,28 @@ class DataBaseController:
     async def set_version(self, version:str):
         '''Устанавливает версию бота'''
         await self._info.update_one({"_id": 0}, {"$set": {"version": version}})
+
+
+    async def get_top_members_by_score(self, count:int) -> List[int]:
+        '''Возвращает список лучших пользователей'''
+        return await self._members.find({"scores": {"$gt": 0}}).sort("scores", -1).limit(count).to_list(None)
+
+
+    async def get_scores_by_id(self, id:int) -> int:
+        '''Возвращает количество баллов пользователя'''
+        return (await self._members.find_one({"_id": id}))["scores"]
+
+    
+    async def get_likes_by_id(self, id:int) -> int:
+        '''Возвращает количество лайков пользователя'''
+        return (await self._members.find_one({"_id": id}))["like"]
+
+
+    async def get_comments_by_id(self, id:int) -> int:
+        '''Возвращает количество комментариев пользователя'''
+        return (await self._members.find_one({"_id": id}))["comment"]
+
+
+    async def get_events_by_id(self, id:int) -> int:
+        '''Возвращает количество мероприятий пользователя'''
+        return (await self._members.find_one({"_id": id}))["event"]

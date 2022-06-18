@@ -44,52 +44,6 @@ async def remove_reply(event:GroupTypes.WallReplyDelete):
     await db.removecomment(event.object.deleter_id)
 
 
-async def parser_id(members:List[str]) -> List[int]:
-    ''''''
-    # https://vk.com/evenifulietome
-    # https://vk.com/id457045924
-    result=[]
-    for member in members:
-        if member.find("https://vk.com/") != -1: member = member.replace("https://vk.com/", "")
-        if member.find("[id") != -1: member = (member.split('id')[1]).split('|')[0]
-        if member.isdigit(): result.append(int(member))
-        else: result.append(int((await bp.api.users.get(user_ids=member))[0].id))
-    return result
-        
-
-@bp.on.message(PermisionRule(), text=f"{PREFIX}мероприятие <members>")
-async def add_score_event(message:Message):
-    try:
-        members = message.text.split(" ")[1:]
-        members = await parser_id(members)
-        await db.scores_update_event(members)
-        await message.answer("Баллы добавлены")
-    except:
-        await message.answer("Ошибка при добавлении баллов")
-
-
-@bp.on.message(PermisionRule(), text=f"{PREFIX}баллы <score> <members>")
-async def add_score_members(message:Message):
-    try:
-        members = message.text.split(" ")[2:]
-        members = await parser_id(members)
-        score = int(message.text.split(" ")[1])
-        await db.scores_update_members(members, score)
-        await message.answer("Баллы добавлены")
-    except Exception as e:
-        await message.answer("Ошибка при добавлении баллов")
-        print(e)
-
-
-@bp.on.message(PermisionRule(), text=(f"{PREFIX}снять <score> <member>"))
-async def remove_score_member(message:Message):
-    member = message.text.split(" ")[2]
-    member = await parser_id(member)
-    score = int(message.text.split(" ")[1])
-    await db.scores_update(member, -score)
-    await message.answer(f"У пользователя @id{member} снято {score} баллов")
-
-
 # Обновить виджет без ожидания обновления
 @bp.on.message(PermisionRule(), text=f"{PREFIX}обновитьвиджет")
 async def update_widget(message:Message):
