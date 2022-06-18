@@ -17,7 +17,6 @@ lw = LoopWrapper()
 
 db = DataBaseController()
 
-from core.config1 import user
 user = User(user)
 
 
