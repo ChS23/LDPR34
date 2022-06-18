@@ -168,3 +168,9 @@ class DataBaseController:
     async def set_version(self, version:str):
         '''Устанавливает версию бота'''
         await self._info.update_one({"_id": 0}, {"$set": {"version": version}})
+
+
+    # Возращает топ n пользователей по количеству баллоы 
+    async def get_top_members_by_score(self, count:int) -> List[int]:
+        '''Возвращает список лучших пользователей'''
+        return await self._members.find({"scores": {"$gt": 0}}).sort("scores", -1).limit(count)
