@@ -50,7 +50,7 @@ async def update_widget(message:Message):
     await rating_update()
 
 
-@lw.interval(seconds=30)
+@lw.interval(seconds=1900)
 async def rating_update():
     
     widgetRating = {
@@ -181,7 +181,7 @@ async def rating_update():
 # Сравнивает время опроса с текущим временем
 # Когда осталось 12 часов до начала мероприятия, отправляет всем пользователям напоминание
 # lw.interval(60*29)
-@lw.interval(seconds=30)
+@lw.interval(seconds=1800)
 async def event_time_reminder():
     if await db.check_poll_time(int(datetime.datetime.now(tz).timestamp())):
         events = await db.get_events_by_time(int(datetime.datetime.now(tz).timestamp()))
