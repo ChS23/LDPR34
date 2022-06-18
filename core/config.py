@@ -1,6 +1,0 @@
-token="dd92baac9601e21e46c5ed15059b37e4d02d5cb647d98471d0c34f8d8d68e59425a384873928c57373e30"
-widget="7c62c2015ec71e94a93ba0647b36a3eff5aa0873435682de3cef49026aa4b71fb15e7cdef925f47c555e9"
-
-mongo="mongodb+srv://ADMIN:7xk3fyGHvc70aEj1@cluster0.gggor.mongodb.net/?retryWrites=true&w=majority"
-user="ddf1204feb3063ef9072e78030708b5ee0cfbd59ceba6881eb540e61f2e06e60a9b27b7be21e97c3a2346"
-# UserToken
