@@ -6,6 +6,7 @@ from blueprints.raiting import lw
 
 bot=Bot(token)
 
+
 for bp in bps:
     bp.load(bot)
 
