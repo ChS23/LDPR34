@@ -25,20 +25,6 @@ async def check_newpost(event:GroupTypes.WallPostNew):
                 print(e)
 
 
-# Команда для изменения времени опроса в базе данных
-# Пример использования:
-# .poll_time id опроса дд.мм.гггг чч:мм
-@bp.on.message(text=f'{PREFIX}времяопроса <poll_id> <time>')
-async def poll_time(message:Message):
-	try:
-		poll_id = message.text.split(' ')[1]
-		time = message.text.split(' ')[2] + ' ' + message.text.split(' ')[3]
-		db.edit_time_poll(poll_id, time)
-		await message.answer('Время опроса изменено')
-	except:
-		await message.answer('Неверный формат времени')
-
-
 # Определяет наличие новых ответов на опрос
 # Если ответ есть, то добавляет его в базу данных
 # Если ответа нет, то пропускает пост
@@ -59,7 +45,7 @@ async def check_new_answer(event:GroupTypes.PollVoteNew):
 async def start_poll(message: Message):
     keyboard=(
             Keyboard(one_time=False)
-            .add(Text('Разрешить отправку сообщений'), {'request_contact': 'allow'}, color=KeyboardButtonColor.POSITIVE)
+            .add(Text('Разрешить отправку сообщений', {'request_contact': 'allow'}), color=KeyboardButtonColor.POSITIVE)
             )
     await message.answer(
         message="Нажмите на кнопку, чтобы разрешить отправку сообщений",
@@ -72,7 +58,7 @@ async def start_poll(message: Message):
 async def allow_send_message(message: Message):
     keyboard=(
         Keyboard(one_time=False)
-        .add(Text('Подписаться на рассылку сообщений'), {'request_contact': 'send'}, color=KeyboardButtonColor.POSITIVE)
+        .add(Text('Подписаться на рассылку сообщений', {'request_contact': 'send'}), color=KeyboardButtonColor.POSITIVE)
         )
     await message.answer(
         message="Вы успешно дали разрешение на отправку сообщений",
@@ -84,7 +70,7 @@ async def allow_send_message(message: Message):
 async def send_message(message: Message):
     keyboard=(
         Keyboard(one_time=False)
-        .add(Text('Подписаться на рассылку сообщений'), {'request_contact': 'send'}, color=KeyboardButtonColor.POSITIVE)
+        .add(Text('Подписаться на рассылку сообщений', {'request_contact': 'send'}), color=KeyboardButtonColor.POSITIVE)
         )
     await message.answer(
         message="Рассылка сообщений пока недоступна",
