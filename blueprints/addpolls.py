@@ -55,7 +55,7 @@ async def check_new_answer(event:GroupTypes.PollVoteNew):
 
 # При нажатии на кнопку с надписью "Начать"
 # Выводит кнопку с текстом "Разрешить отправку сообщений"
-@bp.on.chat_message(text=['Начать'])
+@bp.on.private_message(text=['Начать'])
 async def start_poll(message: Message):
     keyboard=(
             Keyboard(one_time=False)
