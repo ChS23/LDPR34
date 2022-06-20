@@ -94,3 +94,14 @@ async def get_info(message:Message):
     except Exception as e:
         await message.answer("Ошибка при получении информации")
         print(e)
+
+
+@bp.on.message(text=f'{PREFIX}времяопроса <poll_id> <time>')
+async def poll_time(message:Message):
+	try:
+		poll_id = message.text.split(' ')[1]
+		time = message.text.split(' ')[2] + ' ' + message.text.split(' ')[3]
+		db.edit_time_poll(poll_id, time)
+		await message.answer('Время опроса изменено')
+	except:
+		await message.answer('Неверный формат времени')
