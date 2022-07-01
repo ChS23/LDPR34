@@ -48,7 +48,7 @@ async def start_poll(message: Message):
             .add(Text('Разрешить отправку сообщений', {'request_contact': 'allow'}), color=KeyboardButtonColor.POSITIVE)
             )
     await message.answer(
-        message="Нажмите на кнопку, чтобы разрешить отправку сообщений",
+        message="Нажмите на кнопку, чтобы разрешить уведомление о мероприятиях ЛДПР",
         keyboard=keyboard.get_json()
     )
 
@@ -61,7 +61,7 @@ async def allow_send_message(message: Message):
         .add(Text('Подписаться на рассылку сообщений', {'request_contact': 'send'}), color=KeyboardButtonColor.POSITIVE)
         )
     await message.answer(
-        message="Вы успешно дали разрешение на отправку сообщений",
+        message="Вы успешно дали разрешение на отправку уведомлений",
         keyboard=keyboard.get_json()
     )
 
@@ -76,16 +76,3 @@ async def send_message(message: Message):
         message="Рассылка сообщений пока недоступна",
         keyboard=keyboard.get_json()
     )
-
-
-# # Отправить напоминание о мероприятии через n часов
-# async def send_reminder(id:int, n: int):
-# 	name = bp.api.users.users_get(user_ids=id)[0].first_name
-# 	message = f"{name}, напоминаем о мероприятии через {n} часов."
-# 	try:
-# 		await user.api.messages.send(user_id=id, message=message, random_id=random.randint(0, 2**64))
-# 	except:
-# 		try:
-# 			await bp.api.messages.send(user_id=id, message=message, random_id=random.randint(0, 2**64))
-# 		except:
-# 			print('Не удалось отправить сообщение')

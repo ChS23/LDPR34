@@ -52,7 +52,6 @@ async def update_widget(message:Message):
 
 @lw.interval(seconds=1900)
 async def rating_update():
-    
     widgetRating = {
         "title": "Рейтинг на "+ datetime.datetime.now(timezone("Europe/Moscow")).strftime("%H:%M %d.%m.%Y"),
         "more": "v." + " " + (await db.get_version())[:(await db.get_version()).find("-")],
@@ -155,6 +154,24 @@ async def rating_update():
             [
                 {
                     "text": (await bp.api.users.get(await db.top_member_count_id(5)))[0].first_name + " " + (await bp.api.users.get(await db.top_member_count_id(5)))[0].last_name,
+                    "icon_id": "id"+str(await db.top_member_count_id(5)),
+                },
+                {
+                    "text": await db.get_quntity_like_user(await db.top_member_count_id(5)),
+                },
+                {
+                    "text": await db.get_quntity_comment_user(await db.top_member_count_id(5)),
+                },
+                {
+                    "text": await db.get_quntity_event_user(await db.top_member_count_id(5)),
+                },
+                {
+                    "text": await db.get_score(await db.top_member_count_id(5))
+                }
+            ],
+            [
+                {
+                    "text": (await bp.api.users.get(bp.api. Args.uid))[0].first_name + " " + (await bp.api.users.get(await db.top_member_count_id(5)))[0].last_name,
                     "icon_id": "id"+str(await db.top_member_count_id(5)),
                 },
                 {
