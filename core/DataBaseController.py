@@ -48,7 +48,7 @@ class DataBaseController:
         '''Обновляет количество баллов пользователя за мероприятие на определённое количество'''
         for member in event_members:
             await self.scores_update(member, event_count)
-            await self._members.update_one({"_id": member}, {"$inc": {"event": 1}})
+            await self._members.update_one({"_id": member}, {"$inc": {"event": event_count}})
         
 
     async def scores_update_members(self, members:List[int], score):
@@ -200,3 +200,14 @@ class DataBaseController:
     async def get_events_by_id(self, id:int) -> int:
         '''Возвращает количество мероприятий пользователя'''
         return (await self._members.find_one({"_id": id}))["event"]
+
+
+    async def reset_members(self):
+        '''Обнуляет количество баллов всех пользователей, лайков, комментариев и мероприятий'''
+        await self._members.update_many({"scores": {"$gt": 0}}, {"$set": {"scores": 0, "like": 0, "comment": 0, "event": 0}})
+
+
+    async def reset_scores(self):
+        '''Обнуляет количество баллов всех пользователей'''
+        await self._members.update_many({"scores": {"$gt": 0}}, {"$set": {"scores": 0}})
+        print("Количество баллов всех пользователей обнулено")

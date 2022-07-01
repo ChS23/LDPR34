@@ -94,3 +94,13 @@ async def get_info(message:Message):
     except Exception as e:
         await message.answer("Ошибка при получении информации")
         print(e)
+
+
+@bp.on.message(PermisionRule(), text=f"{PREFIX}новыймесяц")
+async def new_month(message:Message):
+    try:
+        await db.reset_members()
+        await message.answer("Рейтинг сброшен. Удачи в следующем месяце!")
+    except Exception as e:
+        await message.answer("Ошибка при сбросе баллов")
+        print(e)
