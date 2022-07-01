@@ -116,7 +116,7 @@ class DataBaseController:
 
     async def top_member_count_id(self, count:int) -> int:
         '''Возращает id пользователя на count месте в топе по scores'''
-        return (await self._members.find({"scores": {"$gt": 0}}).sort("scores", -1).to_list(count))[-1]["_id"]
+        return (await self._members.find({"scores": {"$gt": -1}}).sort("scores", -1).to_list(count))[-1]["_id"]
 
 
     async def get_score(self, id:int) -> int:
