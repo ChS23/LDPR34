@@ -211,3 +211,8 @@ class DataBaseController:
         '''Обнуляет количество баллов всех пользователей'''
         await self._members.update_many({"scores": {"$gt": 0}}, {"$set": {"scores": 0}})
         print("Количество баллов всех пользователей обнулено")
+
+
+    async def get_members_count(self) -> int:
+        '''Возвращает количество участников в рейтинге'''
+        return await self._members.count_documents({"scores": {"$gt": 0}})

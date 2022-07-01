@@ -40,7 +40,6 @@ async def add_score_members(message:Message):
 async def add_event_members(message:Message):
     try:
         members = message.text.split(" ")[2:]
-        print(members)
         members = await parser_id(members)
         count = int(message.text.split(" ")[1])
         await db.scores_update_event_count(count, members)
@@ -103,4 +102,14 @@ async def new_month(message:Message):
         await message.answer("Рейтинг сброшен. Удачи в следующем месяце!")
     except Exception as e:
         await message.answer("Ошибка при сбросе баллов")
+        print(e)
+
+
+@bp.on.message(PermisionRule(), text=f"{PREFIX}количество участников")
+async def get_count_members(message:Message):
+    try:
+        count = await db.get_members_count()
+        await message.answer(f"Количество участников конкурса: {count}")
+    except Exception as e:
+        await message.answer("Ошибка при получении количества участников")
         print(e)
