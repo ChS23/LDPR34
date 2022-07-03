@@ -89,7 +89,8 @@ async def get_info(message:Message):
         comment=await db.get_comments_by_id(member)
         event=await db.get_events_by_id(member)
         scores = await db.get_scores_by_id(member)
-        await message.answer(f"Информация о пользователе @id{member} ({name}):\n❤ Лайков: {likes}\n💬 Комментариев: {comment}\n🎉 Мероприятий: {event}\n🔥Баллов: {scores}")
+        place = await db.get_place_by_id(member)
+        await message.answer(f"@id{member} ({name}):\n🏅 Место: {place}\n❤ Лайков: {likes}\n💬 Комментариев: {comment}\n🎉 Мероприятий: {event}\n🔥 Баллов: {scores}")
     except Exception as e:
         await message.answer("Ошибка при получении информации")
         print(e)
@@ -112,4 +113,20 @@ async def get_count_members(message:Message):
         await message.answer(f"Количество участников конкурса: {count}")
     except Exception as e:
         await message.answer("Ошибка при получении количества участников")
+        print(e)
+
+
+@bp.on.message(PermisionRule(), text=f"{PREFIX}я")
+async def get_my_info(message:Message):
+    try:
+        member = message.from_id
+        name = await get_name(member)
+        likes = await db.get_likes_by_id(member)
+        comment = await db.get_comments_by_id(member)
+        event = await db.get_events_by_id(member)
+        scores = await db.get_scores_by_id(member)
+        place = await db.get_place_by_id(member)
+        await message.answer(f"@id{member} ({name}):\n🏅 Место: {place}\n❤ Лайков: {likes}\n💬 Комментариев: {comment}\n🎉 Мероприятий: {event}\n🔥 Баллов: {scores}")
+    except Exception as e:
+        await message.answer("Ошибка при получении информации")
         print(e)

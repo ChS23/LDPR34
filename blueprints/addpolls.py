@@ -80,7 +80,7 @@ async def send_message(message: Message):
 
 # # Отправить напоминание о мероприятии через n часов
 # async def send_reminder(id:int, n: int):
-# 	name = bp.api.users.users_get(user_ids=id)[0].first_name
+# 	name = bp.api.users.get(user_ids=id)[0].first_name
 # 	message = f"{name}, напоминаем о мероприятии через {n} часов."
 # 	try:
 # 		await user.api.messages.send(user_id=id, message=message, random_id=random.randint(0, 2**64))

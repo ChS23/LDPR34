@@ -216,3 +216,9 @@ class DataBaseController:
     async def get_members_count(self) -> int:
         '''Возвращает количество участников в рейтинге'''
         return await self._members.count_documents({"scores": {"$gt": 0}})
+
+
+    
+    async def get_place_by_id(self, id:int) -> int:
+        '''Возвращает место пользователя в рейтинге по scores'''
+        return (await self._members.find({"scores": {"$gt": 0}}).sort("scores", -1).to_list(None)).index(await self._members.find_one({"_id": id})) + 1
