@@ -116,7 +116,7 @@ async def get_count_members(message:Message):
         print(e)
 
 
-@bp.on.message(PermisionRule(), text=f"{PREFIX}я")
+@bp.on.message(text=f"{PREFIX}я")
 async def get_my_info(message:Message):
     try:
         member = message.from_id
