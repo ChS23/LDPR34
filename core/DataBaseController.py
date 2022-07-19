@@ -1,3 +1,4 @@
+from webbrowser import get
 from core.config import mongo
 from typing import List
 
@@ -222,3 +223,8 @@ class DataBaseController:
     async def get_place_by_id(self, id:int) -> int:
         '''Возвращает место пользователя в рейтинге по scores'''
         return (await self._members.find({"scores": {"$gt": 0}}).sort("scores", -1).to_list(None)).index(await self._members.find_one({"_id": id})) + 1
+
+
+    async def get_members(self):
+        '''Возвращает список всех пользователей'''
+        return await self._members.find({"scores": {"$gt": 0}}).to_list(None)

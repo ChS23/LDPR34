@@ -1,6 +1,9 @@
+import os
 from vkbottle.bot import Blueprint, Message
 from core.DataBaseController import DataBaseController
 from core.PermisionRule import PermisionRule
+from openpyxl import Workbook
+from vkbottle.tools import DocMessagesUploader
 from typing import List
 PREFIX="."
 
@@ -129,4 +132,33 @@ async def get_my_info(message:Message):
         await message.answer(f"@id{member} ({name}):\n🏅 Место: {place}\n❤ Лайков: {likes}\n💬 Комментариев: {comment}\n🎉 Мероприятий: {event}\n🔥 Баллов: {scores}")
     except Exception as e:
         await message.answer("Ошибка при получении информации")
+        print(e)
+
+
+@bp.on.message(PermisionRule(), text=f"{PREFIX}экспорт")
+async def export_members(message:Message):
+    try:
+        wb = Workbook()
+        ws = wb.active
+        ws.title = "Members"
+        ws.append(["ID", "Лайков", "Комментариев", "Мероприятий", "Баллов"])
+        members = await db.get_members()
+        for member in members:
+            id = member['_id']
+            likes = await db.get_likes_by_id(id)
+            comment = await db.get_comments_by_id(id)
+            event = await db.get_events_by_id(id)
+            scores = await db.get_scores_by_id(id)
+            ws.append([id, likes, comment, event, scores])
+        wb.save("blueprints\members.xlsx")
+        wb.close()
+        doc = await DocMessagesUploader(bp.api).upload(
+            "members.xlsx",
+            "blueprints\members.xlsx",
+            peer_id=message.peer_id
+        )
+        await message.answer(f"Экспорт завершен.", attachment=doc)
+        os.remove("blueprints\members.xlsx")
+    except Exception as e:
+        await message.answer("Ошибка при экспорте")
         print(e)
